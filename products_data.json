@@ -1,0 +1,92 @@
+{
+  "headphones": {
+    "emoji": "🎧",
+    "name": "НАУШНИКИ",
+    "name_en": "HEADPHONES",
+    "items": [
+      {
+        "name": "AirPods 4",
+        "price": "3.290",
+        "image": "uploads/ab0ae678f05241f18e896b46d7cdef86_1.jpg"
+      },
+      {
+        "name": "AirPods Pro 2",
+        "price": "3.490",
+        "image": "uploads/87bfa8fcefbf48eea9a23992e1deae20_photo_2_2025-10-30_18-31-32.jpg"
+      },
+      {
+        "name": "AirPods Max 2",
+        "price": "11.490",
+        "image": "uploads/ae531dc96b334a4a9f83f9021dae7bd8_photo_2025-09-28_02-15-39.jpg"
+      },
+      {
+        "name": "Marshall Major V",
+        "price": "5.490",
+        "image": "uploads/4f89080ea95a4d438c5e37a9ca510823_photo_2025-09-26_17-07-42.jpg"
+      }
+    ]
+  },
+  "watches": {
+    "emoji": "⌚",
+    "name": "ЧАСЫ",
+    "name_en": "WATCHES",
+    "items": [
+      {
+        "name": "Apple Watch Series 10 I Black Titanium",
+        "price": "3.990",
+        "image": "uploads/fa597ad9e5d449a9aff9e0b8f9cec397_IMG20250909175918.jpg"
+      },
+      {
+        "name": "Apple Watch Series 10 I Natural Titanium",
+        "price": "3.990",
+        "image": "uploads/dd9caad6fe93453fb53a238590c62548_IMG20250909171407_1.jpg"
+      },
+      {
+        "name": "Apple Watch Ultra 2",
+        "price": "3.990",
+        "image": "uploads/43e8fc2e99644f07ba503448bd7003bf_IMG20250910124350.jpg"
+      }
+    ]
+  },
+  "charging": {
+    "emoji": "⚡",
+    "name": "ЗАРЯДНЫЕ УСТРОЙСТВА",
+    "name_en": "CHARGING DEVICES",
+    "items": [
+      {
+        "name": "Комплект зарядки Apple 25W I USB-C, Lightning",
+        "price": "790",
+        "image": "uploads/385694deed7e40739e848cf1efbfb26c_photo_2025-03-22_17-51-44.jpg"
+      }
+    ]
+  },
+  "haircare": {
+    "emoji": "💇‍♀️",
+    "name": "УХОД ЗА ВОЛОСАМИ",
+    "name_en": "HAIR CARE",
+    "items": [
+      {
+        "name": "Dyson Supersonic HD-08 1:1",
+        "price": "3.490",
+        "image": "uploads/44b05b9469594490947c2420139825ba_photo_2025-04-10_23-18-57.jpg"
+      }
+    ]
+  },
+  "speakers": {
+    "emoji": "🎵",
+    "name": "КОЛОНКИ",
+    "name_en": "SPEAKERS",
+    "items": [
+      {
+        "name": "JBL Flip 6",
+        "price": "2.190",
+        "image": "uploads/ab044eb6d113472eb92e396f8dfe3da0_photo_2025-04-16_17-16-59.jpg"
+      },
+      {
+        "name": "JBL Clip 5",
+        "price": "2.190",
+        "image": "uploads/c852df2ad7eb417eb38535cb79e4768a_photo_2025-04-15_23-11-22.jpg"
+      }
+    ]
+  }
+}

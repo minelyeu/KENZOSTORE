@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KENZO STORE — Магазин электроники</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+  <div class="snow-container">
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+  </div>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="nav-brand">
+          <span class="brand-text">KENZO STORE</span>
+        </div>
+        <div class="nav-links-wrapper">
+          <ul class="nav-main">
+            <li><a href="#catalog">Каталог</a></li>
+            <li><a href="#reviews">Отзывы</a></li>
+            <li><a href="#buy">Контакты</a></li>
+          </ul>
+          <ul class="nav-auth">
+            {% if user %}
+            <li><a href="{{ url_for('cart') }}" style="position: relative;">
+              Корзина
+              {% if cart_count > 0 %}
+              <span style="position: absolute; top: -8px; right: -8px; background: var(--accent); color: var(--primary); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;">{{ cart_count }}</span>
+              {% endif %}
+            </a></li>
+            <li><a href="{{ url_for('logout') }}">Выйти ({{ user }})</a></li>
+            {% else %}
+            <li><a href="{{ url_for('login') }}">Войти</a></li>
+            <li><a href="{{ url_for('register') }}">Регистрация</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-text">
+          <div class="hero-badge">✨ Премиум качество</div>
+          <h1>KENZO STORE — надёжный магазин с техникой Apple</h1>
+          <p>Мы не просто продаём технику — мы даём уверенность. Покупка с нами остаётся простой, безопасной и приятной: вы получаете честный сервис, поддержку и лучшие впечатления от использования техники Apple.</p>
+          <div class="hero-features">
+            <div class="feature-item">
+              <span class="feature-icon">🚚</span>
+              <span>Быстрая доставка</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">✓</span>
+              <span>Оригинал 100%</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">🛡️</span>
+              <span>Гарантия</span>
+            </div>
+          </div>
+          <a class="cta" href="#catalog">
+            <span>Смотреть каталог</span>
+            <span class="cta-arrow">→</span>
+          </a>
+        </div>
+        <div class="hero-visual">
+          <div class="floating-card card-1">🎧</div>
+          <div class="floating-card card-2">⌚</div>
+          <div class="floating-card card-3">⚡</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">1000+</div>
+          <div class="stat-label">Довольных клиентов</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Поддержка</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Оригинал</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">1-2</div>
+          <div class="stat-label">Дня доставка</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="trust" class="trust-section">
+    <div class="container">
+      <div class="trust-header">
+        <div class="trust-badge">Всё для вашей уверенности</div>
+        <h2>Почему выбирают KENZO STORE?</h2>
+        <p>Честность — это не просто слово для нас, а основа всего, что мы делаем. С нами вы забываете о рисках и сосредотачиваетесь на главном — качестве и удовольствии от техники Apple.</p>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-icon">📸</div>
+          <h3>Проверка и отчёт</h3>
+          <p>Отправляем фото и видео вашего заказа перед отправкой, чтобы вы заранее убедились в идеальном состоянии техники.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">🛡️</div>
+          <h3>Гарантия 30 дней</h3>
+          <p>Если обнаружится брак — быстро решим вопрос: заменим устройство или вернём деньги без лишних вопросов.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">⚡</div>
+          <h3>Оперативно и на связи</h3>
+          <p>Отправляем в день заказа и остаёмся на связи с вами — поддержка ответит ещё до того, как техника будет в ваших руках.</p>
+        </div>
+        <div class="trust-card">
+          <div class="trust-icon">✨</div>
+          <h3>Честные фото</h3>
+          <p>Получаете именно тот товар, что видите на фотографиях. Без сюрпризов и скрытых дефектов.</p>
+        </div>
+      </div>
+      <div class="trust-cta">
+        <div>
+          <strong>Хотите консультацию или оформить заказ?</strong>
+          <span>Напишите нам — поможем выбрать и расскажем всё, что важно знать.</span>
+        </div>
+        <a class="cta" href="#buy">
+          <span>Написать нам</span>
+          <span class="cta-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalog" class="catalog">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="catalog-title">Каталог товаров</h2>
+        <p class="catalog-subtitle">Выберите категорию и найдите идеальную технику для себя</p>
+      </div>
+      {% for category in products %}
+      <div class="category-section">
+        <div class="category-header">
+          <span class="category-emoji">{{ category.emoji }}</span>
+          <div>
+            <h3 class="category-name">{{ category.name }}</h3>
+            <span class="category-name-en">{{ category.name_en }}</span>
+          </div>
+        </div>
+        <div class="products-grid">
+          {% for item in category.products %}
+          <div class="product-item">
+            {% if item.image %}
+            <div class="product-image-wrapper">
+              <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-image">
+            </div>
+            {% else %}
+            <div class="product-image-placeholder">
+              <span class="placeholder-icon">{{ category.emoji }}</span>
+              <span class="placeholder-text">Нет изображения</span>
+            </div>
+            {% endif %}
+            <div class="product-name">{{ item.name }}</div>
+            <div class="product-price-wrapper">
+              <span class="product-price">{{ item.price }}₽</span>
+            </div>
+            {% if user %}
+            <form method="POST" action="{{ url_for('add_to_cart') }}" style="width: 100%;">
+              <input type="hidden" name="category" value="{{ category.key }}">
+              <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" class="product-btn" style="width: 100%; border: none; cursor: pointer;">
+                <span>В корзину</span>
+                <span class="btn-icon">🛒</span>
+              </button>
+            </form>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="product-btn">
+              <span>Войти для покупки</span>
+              <span class="btn-icon">→</span>
+            </a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="reviews" class="reviews">
+    <div class="container">
+      <div class="section-header">
+        <h2>Отзывы наших клиентов</h2>
+        <p class="section-subtitle">Что говорят о нас покупатели</p>
+      </div>
+      <div class="reviews-grid">
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <strong>Макс, Москва</strong>
+          <p>«KENZO STORE доставил за один день! AirPods дают чистый бас и шумоподавление просто космос.»</p>
+        </div>
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <strong>Катя, Санкт-Петербург</strong>
+          <p>«Стильный кейс, удобно в ушах, звук топ. Покупала для работы и тренировок — везде идеально.»</p>
+        </div>
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <strong>Илья, Казань</strong>
+          <p>«Лучшие наушники, что у меня были. Пространственное аудио — будто в студии.»</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="buy" class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Готов оформить заказ?</h2>
+        <p>Свяжись с нами прямо сейчас — оформим заказ за 15 минут. Доставка по всей России.</p>
+      <div class="contact-card">
+        <div>
+          <strong>+7 (900) 555-77-88</strong>
+          <span>Позвони — за 15 минут всё оформим</span>
+        </div>
+        <a class="cta" href="https://t.me/amisoeu" target="_blank">
+          <span>Связаться</span>
+          <span class="cta-arrow">→</span>
+        </a>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      © 2025 KENZO STORE. Все права защищены. Официальный дилер Apple.
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .cart-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .cart-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .cart-header h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .cart-header a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .cart-header a:hover {
+      color: var(--accent);
+    }
+    .cart-item {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+    .cart-item-image {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid rgba(245, 178, 0, 0.3);
+      flex-shrink: 0;
+    }
+    .cart-item-image-placeholder {
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(245, 178, 0, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .cart-item-info {
+      min-width: 0;
+    }
+    .cart-item-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-wrap: break-word;
+    }
+    .cart-item-price {
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quantity-input {
+      width: 50px;
+      padding: 8px 4px;
+      background: var(--bg);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 8px;
+      color: var(--text);
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .quantity-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .quantity-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .quantity-btn:hover {
+      background: #ffc107;
+      transform: scale(1.05);
+    }
+    .item-total {
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 90px;
+      text-align: right;
+      font-size: 1.1rem;
+    }
+    .remove-btn {
+      padding: 10px 18px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+    .remove-btn:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
+    @media (max-width: 768px) {
+      .cart-item {
+        grid-template-columns: 100px 1fr;
+        gap: 16px;
+      }
+      .cart-item-controls {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .cart-item-image,
+      .cart-item-image-placeholder {
+        width: 100px;
+        height: 100px;
+      }
+    }
+    .cart-total {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.3);
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 30px;
+      text-align: center;
+    }
+    .cart-total h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+    .cart-total-price {
+      color: var(--accent);
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .cart-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .cart-actions form {
+      display: inline-flex;
+      margin: 0;
+    }
+    .cart-actions .remove-btn {
+      height: auto;
+      padding: 14px 24px;
+      font-size: 1rem;
+    }
+    .cart-actions .cta {
+      padding: 14px 24px;
+      font-size: 1rem;
+    }
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-cart h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .empty-cart a {
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="cart-container">
+    <div class="cart-header">
+      <h1>🛒 Корзина</h1>
+      <a href="{{ url_for('home') }}">← Вернуться в каталог</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 8px; background: {% if category == 'success' %}rgba(76, 175, 80, 0.2){% else %}rgba(244, 67, 54, 0.2){% endif %}; border: 1px solid {% if category == 'success' %}rgba(76, 175, 80, 0.5){% else %}rgba(244, 67, 54, 0.5){% endif %}; color: {% if category == 'success' %}#4caf50{% else %}#f44336{% endif %};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if cart_items %}
+      {% for item in cart_items %}
+      <div class="cart-item">
+        {% if item.image %}
+        <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="cart-item-image">
+        {% else %}
+        <div class="cart-item-image-placeholder">📦</div>
+        {% endif %}
+        <div class="cart-item-info">
+          <div class="cart-item-name">{{ item.name }}</div>
+          <div class="cart-item-price">{{ item.price }}₽ за шт.</div>
+        </div>
+        <div class="cart-item-controls">
+          <form method="POST" action="{{ url_for('update_cart') }}" style="display: flex; align-items: center; gap: 0;">
+            <input type="hidden" name="product_name" value="{{ item.name }}">
+            <div class="quantity-control">
+              <button type="button" class="quantity-btn" onclick="changeQuantity('{{ item.name }}', -1)">−</button>
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input" id="qty-{{ item.name|replace(' ', '-') }}" onchange="updateQuantity('{{ item.name }}')">
+              <button type="button" class="quantity-btn" onclick="changeQuantity('{{ item.name }}', 1)">+</button>
+            </div>
+          </form>
+          <div class="item-total">
+            {{ "{:,}".format(item.total).replace(",", ".") }}₽
+          </div>
+          <form method="POST" action="{{ url_for('remove_from_cart') }}" style="display: inline;">
+            <input type="hidden" name="product_name" value="{{ item.name }}">
+            <button type="submit" class="remove-btn">Удалить</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="cart-total">
+        <h2>Итого</h2>
+        <div class="cart-total-price">{{ "{:,}".format(total).replace(",", ".") }}₽</div>
+        <div class="cart-actions">
+          <a href="{{ url_for('home') }}#buy" class="cta" style="background: linear-gradient(135deg, var(--accent) 0%, #ffc107 100%);">Оформить заказ</a>
+          <a href="{{ url_for('home') }}" class="cta" style="background: rgba(255, 255, 255, 0.1); color: var(--text); border: 2px solid rgba(245, 178, 0, 0.3);">Продолжить покупки</a>
+          <form method="POST" action="{{ url_for('clear_cart') }}">
+            <button type="submit" class="remove-btn" onclick="return confirm('Очистить всю корзину?')">Очистить корзину</button>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-cart">
+        <h2>Корзина пуста</h2>
+        <p>Добавьте товары из каталога</p>
+        <a href="{{ url_for('home') }}" class="cta">Перейти в каталог</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    function changeQuantity(productName, delta) {
+      const input = document.getElementById('qty-' + productName.replace(/ /g, '-'));
+      const currentValue = parseInt(input.value) || 1;
+      const newValue = Math.max(1, currentValue + delta);
+      input.value = newValue;
+      updateQuantity(productName);
+    }
+
+    function updateQuantity(productName) {
+      const input = document.getElementById('qty-' + productName.replace(/ /g, '-'));
+      const form = input.closest('form');
+      if (form) {
+        form.submit();
+      }
+    }
+  </script>
+</body>
+</html>
+

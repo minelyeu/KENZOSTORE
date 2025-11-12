@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ-панель — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .admin-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .admin-header h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .admin-header a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .admin-header a:hover {
+      color: var(--accent);
+    }
+    .messages {
+      margin-bottom: 30px;
+    }
+    .message {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .message.success {
+      background: rgba(76, 175, 80, 0.2);
+      border: 1px solid rgba(76, 175, 80, 0.5);
+      color: #4caf50;
+    }
+    .message.error {
+      background: rgba(244, 67, 54, 0.2);
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      color: #f44336;
+    }
+    .upload-form {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .upload-form-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .upload-form-header .category-emoji {
+      font-size: 1.5rem;
+    }
+    .upload-form-header h3 {
+      font-size: 1.2rem;
+      color: var(--text);
+      margin: 0;
+    }
+    .upload-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .file-input-label:hover {
+      background: #ffc107;
+      transform: translateY(-2px);
+    }
+    .upload-btn {
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .upload-btn:hover {
+      background: #ffc107;
+      transform: translateY(-2px);
+    }
+    .delete-btn {
+      padding: 10px 20px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .delete-btn:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
+    .product-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid rgba(245, 178, 0, 0.3);
+    }
+    .product-preview-placeholder {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-grow: 1;
+    }
+    .product-details {
+      flex-grow: 1;
+    }
+    .product-details strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .product-details span {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>⚙️ Админ-панель</h1>
+      <a href="{{ url_for('home') }}">← Вернуться на главную</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages">
+          {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% for category in products %}
+    <div class="category-section">
+      <div class="category-header">
+        <span class="category-emoji">{{ category.emoji }}</span>
+        <div>
+          <h3 class="category-name">{{ category.name }}</h3>
+          <span class="category-name-en">{{ category.name_en }}</span>
+        </div>
+      </div>
+
+      {% for item in category.products %}
+      <div class="upload-form">
+        <div class="upload-form-header">
+          <span class="category-emoji">{{ category.emoji }}</span>
+          <h3>{{ item.name }}</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+          <div class="product-info">
+            {% if item.image %}
+            <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-preview">
+            {% else %}
+            <div class="product-preview-placeholder">Нет изображения</div>
+            {% endif %}
+            <div class="product-details">
+              <strong>{{ item.name }}</strong>
+              <span>{{ item.price }}₽</span>
+            </div>
+          </div>
+          <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: center;">
+            <input type="hidden" name="category" value="{{ category.key }}">
+            <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+            <div class="file-input-wrapper">
+              <input type="file" name="file" id="file-{{ category.key }}-{{ loop.index0 }}" accept="image/*" required>
+              <label for="file-{{ category.key }}-{{ loop.index0 }}" class="file-input-label">Выбрать файл</label>
+            </div>
+            <button type="submit" class="upload-btn">Загрузить</button>
+          </form>
+          {% if item.image %}
+          <form action="{{ url_for('delete_image') }}" method="post" style="display: inline;">
+            <input type="hidden" name="category" value="{{ category.key }}">
+            <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+            <button type="submit" class="delete-btn" onclick="return confirm('Удалить изображение?')">Удалить</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</body>
+</html>
+
