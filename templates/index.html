@@ -86,6 +86,9 @@
           </ul>
           <ul class="nav-auth">
             {% if user %}
+            {% if is_admin %}
+            <li><a href="{{ url_for('admin') }}">Админ-панель</a></li>
+            {% endif %}
             <li><a href="{{ url_for('cart') }}" style="position: relative;">
               Корзина
               {% if cart_count > 0 %}

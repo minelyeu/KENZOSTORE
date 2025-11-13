@@ -3,5 +3,16 @@
     "email": "minelyelite@mail.ru",
     "password": "scrypt:32768:8:1$ZmOehyBjyl1jX2bU$bc9b907eef7af88d841a22541ebdd33e28c7d8dcaceadc1923beb194cd58d5430f3bb632c92d5b8cb2a448819c3dba603f20465c423c0e91b4624acca72b237c",
     "id": "5af35e7c-7399-43b3-b598-3156b38df45e"
+  },
+  "alex": {
+    "email": "alex@mail.ru",
+    "password": "scrypt:32768:8:1$pzxMo8IzDiuGo5qn$569e30e1371c19b3a8825aa99d33e854411a84cddb3385eef975cb142745930735293fd5b27be6c5509cf6302b7936af7dd1ecdc0fdc92034543f5803913fcb4",
+    "id": "3c069f60-3c88-4583-a14d-dc1eebc110b9"
+  },
+  "admin": {
+    "email": "admin@gmail.com",
+    "password": "scrypt:32768:8:1$7T9wrUolrWKrD2vy$7e4e8ff199ec1d133163d846feae1e05ad9e4fd65f8c2411405128251143d4d21f14bab6b8c77dea9b851d4490ece4cfdb390b658dfa1c4c4b5ee363e73d2d30",
+    "id": "fa9d7d74-c8ac-45b0-814a-210009007b98",
+    "is_admin": true
   }
 }

@@ -163,6 +163,69 @@
       color: var(--text-muted);
       font-size: 0.9rem;
     }
+    .add-product-card {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .add-product-card h2 {
+      margin: 0 0 20px;
+      color: var(--text);
+      font-size: 1.4rem;
+    }
+    .add-product-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: flex-end;
+    }
+    .add-product-form .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 200px;
+      flex: 1;
+    }
+    .add-product-form label {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .add-product-form input,
+    .add-product-form select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 178, 0, 0.3);
+      background: var(--primary-dark);
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .add-product-form input:focus,
+    .add-product-form select:focus {
+      border-color: var(--accent);
+    }
+    .add-product-form select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M3.5 5.5L8 10L12.5 5.5' stroke='%23f5b200' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    .add-product-form select option {
+      background: var(--primary-dark);
+      color: var(--text);
+    }
+    .add-product-form select option[disabled] {
+      color: var(--text-muted);
+    }
+    .add-product-form button {
+      margin-top: 24px;
+    }
   </style>
 </head>
 <body>
@@ -181,6 +244,30 @@
         </div>
       {% endif %}
     {% endwith %}
+
+    <div class="add-product-card">
+      <h2>Добавить новый товар</h2>
+      <form action="{{ url_for('add_product') }}" method="post" class="add-product-form">
+        <div class="form-field">
+          <label for="category">Категория</label>
+          <select name="category" id="category" required>
+            <option value="" disabled selected>Выберите категорию</option>
+            {% for category in products %}
+            <option value="{{ category.key }}">{{ category.name }} ({{ category.name_en }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="name">Название товара</label>
+          <input type="text" name="name" id="name" placeholder="Например, AirPods 3" required>
+        </div>
+        <div class="form-field">
+          <label for="price">Цена (в ₽)</label>
+          <input type="text" name="price" id="price" placeholder="Например, 3490" required>
+        </div>
+        <button type="submit" class="upload-btn">Добавить товар</button>
+      </form>
+    </div>
 
     {% for category in products %}
     <div class="category-section">

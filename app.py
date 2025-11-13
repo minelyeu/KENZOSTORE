@@ -130,6 +130,17 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+def admin_required(f):
+    """Декоратор для проверки прав администратора"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_admin'):
+            flash('Недостаточно прав для доступа к админ-панели', 'error')
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 PRODUCTS = load_products()
 
 
@@ -155,10 +166,12 @@ def home():
         cart = get_user_cart(session['user_id'])
         cart_count = sum(item['quantity'] for item in cart)
     
-    return render_template("index.html", products=products_list, cart_count=cart_count, user=session.get('username'))
+    return render_template("index.html", products=products_list, cart_count=cart_count, user=session.get('username'), is_admin=session.get('is_admin', False))
 
 
 @app.route("/admin")
+@login_required
+@admin_required
 def admin():
     """Админ-панель для управления товарами и загрузки изображений"""
     products = load_products()
@@ -175,7 +188,58 @@ def admin():
     return render_template("admin.html", products=products_list)
 
 
+@app.route("/add_product", methods=["POST"])
+@login_required
+@admin_required
+def add_product():
+    """Добавляет новый товар в выбранную категорию"""
+    category_key = request.form.get('category')
+    product_name = request.form.get('name', '').strip()
+    product_price = request.form.get('price', '').strip()
+
+    if not category_key:
+        flash('Выберите категорию для нового товара', 'error')
+        return redirect(url_for('admin'))
+
+    products = load_products()
+
+    if category_key not in products:
+        flash('Выбранная категория не найдена', 'error')
+        return redirect(url_for('admin'))
+
+    if not product_name or not product_price:
+        flash('Введите название и цену товара', 'error')
+        return redirect(url_for('admin'))
+
+    # Преобразуем цену в формат с разделением тысяч точкой (например, 3.490)
+    digits_only = ''.join(ch for ch in product_price if ch.isdigit())
+    if not digits_only:
+        flash('Неверный формат цены', 'error')
+        return redirect(url_for('admin'))
+
+    if any(item['name'].strip().lower() == product_name.lower() for item in products[category_key]['items']):
+        flash('Товар с таким названием уже существует в этой категории', 'error')
+        return redirect(url_for('admin'))
+
+    if len(digits_only) > 3:
+        formatted_price = f"{digits_only[:-3]}.{digits_only[-3:]}"
+    else:
+        formatted_price = digits_only
+
+    new_product = {
+        "name": product_name,
+        "price": formatted_price,
+        "image": ""
+    }
+    products[category_key]['items'].append(new_product)
+    save_products(products)
+    flash('Товар успешно добавлен', 'success')
+    return redirect(url_for('admin'))
+
+
 @app.route("/upload", methods=["POST"])
+@login_required
+@admin_required
 def upload_file():
     """Загружает изображение для товара"""
     if 'file' not in request.files:
@@ -221,6 +285,8 @@ def upload_file():
 
 
 @app.route("/delete_image", methods=["POST"])
+@login_required
+@admin_required
 def delete_image():
     """Удаляет изображение товара"""
     category_key = request.form.get('category')
@@ -278,7 +344,8 @@ def register():
         users[username] = {
             'email': email,
             'password': generate_password_hash(password),
-            'id': str(uuid.uuid4())
+            'id': str(uuid.uuid4()),
+            'is_admin': username.lower() == 'admin'
         }
         save_users(users)
         
@@ -307,6 +374,7 @@ def login():
         if check_password_hash(users[username]['password'], password):
             session['user_id'] = users[username]['id']
             session['username'] = username
+            session['is_admin'] = users[username].get('is_admin', username.lower() == 'admin')
             flash(f'Добро пожаловать, {username}!', 'success')
             return redirect(url_for('home'))
         else:
@@ -450,4 +518,4 @@ def clear_cart():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port='4114')
+    app.run(debug=True, host='0.0.0.0', port=4444)
