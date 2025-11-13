@@ -176,7 +176,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
 ## 👥 Авторы
 
-- Ваше Имя - [GitHub](https://github.com/minelyeu)
+- minelyeu - [GitHub](https://github.com/minelyeu)
 
 ## 🙏 Благодарности
 
