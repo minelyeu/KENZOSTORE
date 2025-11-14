@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отслеживание заказа — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .track-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .track-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .track-header h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .track-header a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .track-header a:hover {
+      color: var(--accent);
+    }
+    .order-info-card {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .order-info-card h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .order-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+    .order-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+    }
+    .order-detail:last-child {
+      border-bottom: none;
+    }
+    .order-detail-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .order-detail-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .status-timeline {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    .status-timeline h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      position: relative;
+    }
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 40px;
+      width: 2px;
+      height: calc(100% + 10px);
+      background: rgba(245, 178, 0, 0.2);
+    }
+    .timeline-item:last-child::before {
+      display: none;
+    }
+    .timeline-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      margin-right: 20px;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .timeline-icon.completed {
+      background: var(--accent);
+      color: var(--primary);
+    }
+    .timeline-icon.current {
+      background: rgba(245, 178, 0, 0.3);
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    .timeline-icon.pending {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+    }
+    .timeline-content {
+      flex: 1;
+    }
+    .timeline-status {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+    }
+    .timeline-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .order-items {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+    }
+    .order-items h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+    }
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    .order-item-name {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .order-item-quantity {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-left: 8px;
+    }
+    .order-item-price {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .order-total {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid rgba(245, 178, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-total-label {
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .order-total-price {
+      color: var(--accent);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="track-container">
+    <div class="track-header">
+      <h1>📦 Отслеживание заказа</h1>
+      <a href="{{ url_for('home') }}">← Вернуться на главную</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 8px; background: {% if category == 'success' %}rgba(76, 175, 80, 0.2){% else %}rgba(244, 67, 54, 0.2){% endif %}; border: 1px solid {% if category == 'success' %}rgba(76, 175, 80, 0.5){% else %}rgba(244, 67, 54, 0.5){% endif %}; color: {% if category == 'success' %}#4caf50{% else %}#f44336{% endif %};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="order-info-card">
+      <h2>Информация о заказе</h2>
+      <div class="order-number">№ {{ order['order_number'] }}</div>
+      <div class="order-detail">
+        <span class="order-detail-label">Дата оформления:</span>
+        <span class="order-detail-value">{{ order['created_at'] }}</span>
+      </div>
+      <div class="order-detail">
+        <span class="order-detail-label">Статус:</span>
+        <span class="order-detail-value" style="color: var(--accent);">{{ order['status'] }}</span>
+      </div>
+      <div class="order-detail">
+        <span class="order-detail-label">Имя:</span>
+        <span class="order-detail-value">{{ order['customer']['name'] }}</span>
+      </div>
+      <div class="order-detail">
+        <span class="order-detail-label">Телефон:</span>
+        <span class="order-detail-value">{{ order['customer']['phone'] }}</span>
+      </div>
+      {% if order['customer']['email'] %}
+      <div class="order-detail">
+        <span class="order-detail-label">Email:</span>
+        <span class="order-detail-value">{{ order['customer']['email'] }}</span>
+      </div>
+      {% endif %}
+      {% if order['customer']['address'] %}
+      <div class="order-detail">
+        <span class="order-detail-label">Адрес доставки:</span>
+        <span class="order-detail-value">{{ order['customer']['address'] }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="status-timeline">
+      <h2>Статус заказа</h2>
+      {% for status in status_order %}
+      <div class="timeline-item">
+        {% set status_index = loop.index0 %}
+        {% if status_index < current_status_index %}
+          <div class="timeline-icon completed">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-status">{{ status }}</div>
+            <div class="timeline-description">Завершено</div>
+          </div>
+        {% elif status_index == current_status_index %}
+          <div class="timeline-icon current">●</div>
+          <div class="timeline-content">
+            <div class="timeline-status">{{ status }}</div>
+            <div class="timeline-description">Текущий статус</div>
+          </div>
+        {% else %}
+          <div class="timeline-icon pending">○</div>
+          <div class="timeline-content">
+            <div class="timeline-status" style="color: var(--text-muted);">{{ status }}</div>
+            <div class="timeline-description">Ожидается</div>
+          </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="order-items">
+      <h2>Состав заказа</h2>
+      {% for item in order['items'] %}
+      <div class="order-item">
+        <div>
+          <span class="order-item-name">{{ item.name }}</span>
+          <span class="order-item-quantity">× {{ item.quantity }}</span>
+        </div>
+        <span class="order-item-price">{{ "{:,}".format(item.total).replace(",", ".") }}₽</span>
+      </div>
+      {% endfor %}
+      <div class="order-total">
+        <span class="order-total-label">Итого:</span>
+        <span class="order-total-price">{{ "{:,}".format(order['total']).replace(",", ".") }}₽</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

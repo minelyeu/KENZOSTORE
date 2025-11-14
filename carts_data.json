@@ -10,5 +10,39 @@
     }
   ],
   "3c069f60-3c88-4583-a14d-dc1eebc110b9": [],
-  "fa9d7d74-c8ac-45b0-814a-210009007b98": []
+  "fa9d7d74-c8ac-45b0-814a-210009007b98": [],
+  "session_c4e83d9a-c46b-4907-844b-05a9b8d688b7": [],
+  "834c3370-5d25-42ab-9fd6-04d6226ebeee": [],
+  "session_d436a6d3-d675-41df-8914-2bd8cc0b905b": [],
+  "session_1032a851-1e72-4518-9689-2cf98398ddc2": [],
+  "session_e43855e6-e8ac-4cfa-951f-4475cd3cf443": [],
+  "6f6683de-1183-44a4-8d48-6f481671c2f0": [],
+  "session_c3df4640-ab83-4be3-aac7-928b82ef1b8f": [],
+  "session_b9376cfa-6778-4f68-ad5d-f78735620f4c": [
+    {
+      "name": "AirPods Pro 3",
+      "quantity": 1
+    },
+    {
+      "name": "Marshall Major V",
+      "quantity": 2
+    }
+  ],
+  "session_bfdd7256-8c71-4721-8889-bcf97779dbd8": [
+    {
+      "name": "JBL Flip 6",
+      "quantity": 1
+    }
+  ],
+  "session_7ab5dda5-cf6d-49b0-bb70-bdb862269660": [
+    {
+      "name": "AirPods 4",
+      "quantity": 1
+    },
+    {
+      "name": "AirPods Pro 2",
+      "quantity": 1
+    }
+  ],
+  "5021fd55-4312-4670-bb5b-0c5e1c7b2d89": []
 }

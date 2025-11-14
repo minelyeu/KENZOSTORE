@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оформление заказа — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .checkout-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .checkout-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .checkout-header h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .checkout-header a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .checkout-header a:hover {
+      color: var(--accent);
+    }
+    .checkout-content {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    @media (max-width: 968px) {
+      .checkout-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    .checkout-form {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 30px;
+    }
+    .checkout-form h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      color: var(--text);
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Montserrat', sans-serif;
+      transition: border-color 0.2s ease;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .form-group .required {
+      color: #f44336;
+    }
+    .order-summary {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.3);
+      border-radius: 16px;
+      padding: 30px;
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+    .order-summary h2 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+    }
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    .order-item-name {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .order-item-quantity {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-left: 8px;
+    }
+    .order-item-price {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .order-total {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid rgba(245, 178, 0, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order-total-label {
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .order-total-price {
+      color: var(--accent);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, #ffc107 100%);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-top: 20px;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="checkout-container">
+    <div class="checkout-header">
+      <h1>📝 Оформление заказа</h1>
+      <a href="{{ url_for('cart') }}">← Вернуться в корзину</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="message {{ category }}" style="margin-bottom: 20px; padding: 12px; border-radius: 8px; background: {% if category == 'success' %}rgba(76, 175, 80, 0.2){% else %}rgba(244, 67, 54, 0.2){% endif %}; border: 1px solid {% if category == 'success' %}rgba(76, 175, 80, 0.5){% else %}rgba(244, 67, 54, 0.5){% endif %}; color: {% if category == 'success' %}#4caf50{% else %}#f44336{% endif %};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="checkout-content">
+      <div class="checkout-form">
+        <h2>Контактные данные</h2>
+        <form method="POST" action="{{ url_for('checkout') }}">
+          <div class="form-group">
+            <label for="name">Имя <span class="required">*</span></label>
+            <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Телефон <span class="required">*</span></label>
+            <input type="tel" id="phone" name="phone" required placeholder="+7 (900) 123-45-67">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="example@mail.com">
+          </div>
+          
+          <div class="form-group">
+            <label for="address">Адрес доставки</label>
+            <textarea id="address" name="address" placeholder="Введите адрес доставки"></textarea>
+          </div>
+          
+          <button type="submit" class="submit-btn">Оформить заказ</button>
+        </form>
+      </div>
+
+      <div class="order-summary">
+        <h2>Ваш заказ</h2>
+        {% for item in cart_items %}
+        <div class="order-item">
+          <div>
+            <span class="order-item-name">{{ item.name }}</span>
+            <span class="order-item-quantity">× {{ item.quantity }}</span>
+          </div>
+          <span class="order-item-price">{{ "{:,}".format(item.total).replace(",", ".") }}₽</span>
+        </div>
+        {% endfor %}
+        <div class="order-total">
+          <span class="order-total-label">Итого:</span>
+          <span class="order-total-price">{{ "{:,}".format(total).replace(",", ".") }}₽</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

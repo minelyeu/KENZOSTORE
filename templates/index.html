@@ -13,65 +13,6 @@
   </style>
 </head>
 <body>
-  <div class="snow-container">
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-  </div>
   <header>
     <div class="container">
       <nav>
@@ -82,19 +23,21 @@
           <ul class="nav-main">
             <li><a href="#catalog">Каталог</a></li>
             <li><a href="#reviews">Отзывы</a></li>
+            <li><a href="#track">Отслеживание</a></li>
             <li><a href="#buy">Контакты</a></li>
           </ul>
           <ul class="nav-auth">
-            {% if user %}
-            {% if is_admin %}
-            <li><a href="{{ url_for('admin') }}">Админ-панель</a></li>
-            {% endif %}
             <li><a href="{{ url_for('cart') }}" style="position: relative;">
               Корзина
               {% if cart_count > 0 %}
               <span style="position: absolute; top: -8px; right: -8px; background: var(--accent); color: var(--primary); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;">{{ cart_count }}</span>
               {% endif %}
             </a></li>
+            {% if user %}
+            <li><a href="{{ url_for('my_orders') }}">Активные заказы</a></li>
+            {% if is_admin %}
+            <li><a href="{{ url_for('admin') }}">Админ-панель</a></li>
+            {% endif %}
             <li><a href="{{ url_for('logout') }}">Выйти ({{ user }})</a></li>
             {% else %}
             <li><a href="{{ url_for('login') }}">Войти</a></li>
@@ -219,7 +162,7 @@
         </div>
         <div class="products-grid">
           {% for item in category.products %}
-          <div class="product-item">
+          <div class="product-item" data-category="{{ category.key }}" data-index="{{ loop.index0 }}" style="cursor: pointer;">
             {% if item.image %}
             <div class="product-image-wrapper">
               <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-image">
@@ -234,22 +177,15 @@
             <div class="product-price-wrapper">
               <span class="product-price">{{ item.price }}₽</span>
             </div>
-            {% if user %}
-            <form method="POST" action="{{ url_for('add_to_cart') }}" style="width: 100%;">
+            <form method="POST" action="{{ url_for('add_to_cart') }}" class="add-to-cart-form" style="width: 100%;" onclick="event.stopPropagation();">
               <input type="hidden" name="category" value="{{ category.key }}">
               <input type="hidden" name="product_index" value="{{ loop.index0 }}">
               <input type="hidden" name="quantity" value="1">
-              <button type="submit" class="product-btn" style="width: 100%; border: none; cursor: pointer;">
+              <button type="submit" class="product-btn add-to-cart-btn" style="width: 100%; border: none; cursor: pointer;">
                 <span>В корзину</span>
                 <span class="btn-icon">🛒</span>
               </button>
             </form>
-            {% else %}
-            <a href="{{ url_for('login') }}" class="product-btn">
-              <span>Войти для покупки</span>
-              <span class="btn-icon">→</span>
-            </a>
-            {% endif %}
           </div>
           {% endfor %}
         </div>
@@ -303,10 +239,586 @@
     </div>
   </section>
 
+  <section id="track" class="track-section" style="padding: 60px 0; background: var(--bg-light);">
+    <div class="container">
+      <div class="section-header" style="text-align: center; margin-bottom: 40px;">
+        <h2 style="color: var(--text); font-size: 2rem; margin-bottom: 10px;">📦 Отслеживание заказа</h2>
+        <p style="color: var(--text-muted);">Введите номер заказа для отслеживания статуса</p>
+      </div>
+      <div style="max-width: 500px; margin: 0 auto;">
+        <form method="GET" action="{{ url_for('track_order', order_number='') }}" style="display: flex; gap: 10px;">
+          <input type="text" name="order_number" placeholder="Введите номер заказа (например: ORD-20250101120000-ABC123)" required style="flex: 1; padding: 14px 16px; background: var(--bg); border: 2px solid rgba(245, 178, 0, 0.2); border-radius: 8px; color: var(--text); font-size: 1rem; font-family: 'Montserrat', sans-serif;">
+          <button type="submit" class="cta" style="padding: 14px 24px; white-space: nowrap;">
+            <span>Отследить</span>
+          </button>
+        </form>
+        <script>
+          document.querySelector('form[action*="track"]').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const orderNumber = this.querySelector('input[name="order_number"]').value.trim();
+            if (orderNumber) {
+              window.location.href = '/track/' + encodeURIComponent(orderNumber);
+            }
+          });
+        </script>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <div class="container">
       © 2025 KENZO STORE. Все права защищены. Официальный дилер Apple.
     </div>
   </footer>
+
+  <!-- Модальное окно для деталей товара -->
+  <div id="productModal" class="product-modal" style="display: none;">
+    <div class="product-modal-overlay" onclick="closeProductModal()"></div>
+    <div class="product-modal-content">
+      <button class="product-modal-close" onclick="closeProductModal()">×</button>
+      <div class="product-modal-body">
+        <div class="product-modal-image-wrapper">
+          <img id="modalProductImage" src="" alt="" class="product-modal-image" style="display: none;">
+          <div id="modalProductImagePlaceholder" class="product-modal-image-placeholder" style="display: none;">
+            <span id="modalProductEmoji" class="placeholder-icon"></span>
+            <span class="placeholder-text">Нет изображения</span>
+          </div>
+        </div>
+        <div class="product-modal-info">
+          <div class="product-modal-category">
+            <span id="modalProductCategoryEmoji"></span>
+            <span id="modalProductCategoryName"></span>
+          </div>
+          <h2 id="modalProductName" class="product-modal-name"></h2>
+          <div class="product-modal-price-wrapper">
+            <span id="modalProductPrice" class="product-modal-price"></span>
+          </div>
+          <div id="modalProductDescription" class="product-modal-description" style="display: none;">
+            <h3 class="product-modal-section-title">Описание</h3>
+            <p id="modalProductDescriptionText"></p>
+          </div>
+          <div id="modalProductSpecs" class="product-modal-specs" style="display: none;">
+            <h3 class="product-modal-section-title">Характеристики</h3>
+            <ul id="modalProductSpecsList" class="product-modal-specs-list"></ul>
+          </div>
+          <form method="POST" action="{{ url_for('add_to_cart') }}" class="add-to-cart-form-modal" style="width: 100%; margin-top: 20px;">
+            <input type="hidden" name="category" id="modalProductCategoryKey">
+            <input type="hidden" name="product_index" id="modalProductIndex">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="product-modal-btn add-to-cart-btn-modal">
+              <span>Добавить в корзину</span>
+              <span class="btn-icon">🛒</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .product-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .product-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+    }
+    .product-modal-content {
+      position: relative;
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.3);
+      border-radius: 20px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 10001;
+      animation: modalSlideIn 0.3s ease;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+    .product-modal-content::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    @keyframes modalSlideIn {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .product-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #f44336;
+      border: 2px solid rgba(244, 67, 54, 0.5);
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10002;
+      transition: all 0.2s ease;
+    }
+    .product-modal-close:hover {
+      background: rgba(244, 67, 54, 0.3);
+      transform: scale(1.1);
+    }
+    .product-modal-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 40px;
+    }
+    @media (max-width: 768px) {
+      .product-modal-body {
+        grid-template-columns: 1fr;
+        padding: 30px 20px;
+      }
+    }
+    .product-modal-image-wrapper {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(245, 178, 0, 0.2);
+    }
+    .product-modal-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-modal-image-placeholder {
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(245, 178, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+    .product-modal-image-placeholder .placeholder-icon {
+      font-size: 4rem;
+      margin-bottom: 10px;
+    }
+    .product-modal-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .product-modal-category {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .product-modal-category span:first-child {
+      font-size: 1.2rem;
+    }
+    .product-modal-name {
+      color: var(--text);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .product-modal-price-wrapper {
+      margin-bottom: 20px;
+    }
+    .product-modal-price {
+      color: var(--accent);
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+    .product-modal-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, #ffc107 100%);
+      color: var(--primary);
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .product-modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 178, 0, 0.4);
+    }
+    .product-modal-btn:active {
+      transform: translateY(0);
+    }
+    .product-modal-section-title {
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 20px 0 10px 0;
+    }
+    .product-modal-description {
+      margin: 20px 0;
+    }
+    .product-modal-description p {
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    .product-modal-specs {
+      margin: 20px 0;
+    }
+    .product-modal-specs-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .product-modal-specs-list li {
+      color: var(--text);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .product-modal-specs-list li:last-child {
+      border-bottom: none;
+    }
+    .product-modal-specs-list li::before {
+      content: "✓ ";
+      color: var(--accent);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+  </style>
+
+  <script>
+    // Обработка клика на карточку товара
+    document.addEventListener('DOMContentLoaded', function() {
+      const productItems = document.querySelectorAll('.product-item');
+      
+      productItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          // Игнорируем клик, если он на форме или кнопке
+          if (e.target.closest('.add-to-cart-form') || e.target.closest('.product-btn')) {
+            return;
+          }
+          
+          const category = this.getAttribute('data-category');
+          const index = this.getAttribute('data-index');
+          
+          if (category && index !== null) {
+            openProductModal(category, parseInt(index));
+          }
+        });
+      });
+    });
+    
+    // Функция открытия модального окна
+    function openProductModal(categoryKey, productIndex) {
+      fetch(`/product/${categoryKey}/${productIndex}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            showNotification(data.error, 'error');
+            return;
+          }
+          
+          // Заполняем модальное окно данными
+          document.getElementById('modalProductName').textContent = data.name;
+          document.getElementById('modalProductPrice').textContent = data.price + '₽';
+          document.getElementById('modalProductCategoryEmoji').textContent = data.category_emoji;
+          document.getElementById('modalProductCategoryName').textContent = data.category_name;
+          document.getElementById('modalProductCategoryKey').value = data.category_key;
+          document.getElementById('modalProductIndex').value = data.product_index;
+          
+          // Обработка изображения
+          const image = document.getElementById('modalProductImage');
+          const placeholder = document.getElementById('modalProductImagePlaceholder');
+          const emoji = document.getElementById('modalProductEmoji');
+          
+          if (data.image) {
+            image.src = `/static/${data.image}`;
+            image.style.display = 'block';
+            placeholder.style.display = 'none';
+          } else {
+            emoji.textContent = data.category_emoji;
+            image.style.display = 'none';
+            placeholder.style.display = 'flex';
+          }
+          
+          // Обработка описания
+          const descriptionDiv = document.getElementById('modalProductDescription');
+          const descriptionText = document.getElementById('modalProductDescriptionText');
+          if (data.description && data.description.trim()) {
+            descriptionText.textContent = data.description;
+            descriptionDiv.style.display = 'block';
+          } else {
+            descriptionDiv.style.display = 'none';
+          }
+          
+          // Обработка характеристик
+          const specsDiv = document.getElementById('modalProductSpecs');
+          const specsList = document.getElementById('modalProductSpecsList');
+          if (data.specs && data.specs.length > 0) {
+            specsList.innerHTML = '';
+            data.specs.forEach(spec => {
+              const li = document.createElement('li');
+              li.textContent = spec;
+              specsList.appendChild(li);
+            });
+            specsDiv.style.display = 'block';
+          } else {
+            specsDiv.style.display = 'none';
+          }
+          
+          // Показываем модальное окно
+          document.getElementById('productModal').style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showNotification('Ошибка при загрузке информации о товаре', 'error');
+        });
+    }
+    
+    // Функция закрытия модального окна
+    function closeProductModal() {
+      document.getElementById('productModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    
+    // Закрытие по Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeProductModal();
+      }
+    });
+    
+    // Обработка добавления товара в корзину через AJAX
+    document.addEventListener('DOMContentLoaded', function() {
+      const forms = document.querySelectorAll('.add-to-cart-form');
+      
+      forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const btn = form.querySelector('.add-to-cart-btn');
+          const originalText = btn.innerHTML;
+          
+          // Блокируем кнопку
+          btn.disabled = true;
+          btn.innerHTML = '<span>Добавление...</span>';
+          
+          // Создаем FormData
+          const formData = new FormData(form);
+          
+          // Отправляем AJAX запрос
+          fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Обновляем счетчик корзины
+              const cartLink = document.querySelector('a[href*="cart"]');
+              if (cartLink) {
+                let badge = cartLink.querySelector('span');
+                if (data.cart_count > 0) {
+                  if (!badge) {
+                    badge = document.createElement('span');
+                    badge.style.cssText = 'position: absolute; top: -8px; right: -8px; background: var(--accent); color: var(--primary); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;';
+                    cartLink.style.position = 'relative';
+                    cartLink.appendChild(badge);
+                  }
+                  badge.textContent = data.cart_count;
+                } else if (badge) {
+                  badge.remove();
+                }
+              }
+              
+              // Показываем сообщение
+              showNotification(data.message, 'success');
+              
+              // Восстанавливаем кнопку
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            } else {
+              showNotification(data.message || 'Ошибка при добавлении товара', 'error');
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showNotification('Ошибка при добавлении товара', 'error');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          });
+        });
+      });
+      
+      // Обработка формы в модальном окне
+      const modalForm = document.querySelector('.add-to-cart-form-modal');
+      if (modalForm) {
+        modalForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const btn = this.querySelector('.add-to-cart-btn-modal');
+          const originalText = btn.innerHTML;
+          
+          // Блокируем кнопку
+          btn.disabled = true;
+          btn.innerHTML = '<span>Добавление...</span>';
+          
+          // Создаем FormData
+          const formData = new FormData(this);
+          
+          // Отправляем AJAX запрос
+          fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Обновляем счетчик корзины
+              const cartLink = document.querySelector('a[href*="cart"]');
+              if (cartLink) {
+                let badge = cartLink.querySelector('span');
+                if (data.cart_count > 0) {
+                  if (!badge) {
+                    badge = document.createElement('span');
+                    badge.style.cssText = 'position: absolute; top: -8px; right: -8px; background: var(--accent); color: var(--primary); border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;';
+                    cartLink.style.position = 'relative';
+                    cartLink.appendChild(badge);
+                  }
+                  badge.textContent = data.cart_count;
+                } else if (badge) {
+                  badge.remove();
+                }
+              }
+              
+              // Показываем сообщение
+              showNotification(data.message, 'success');
+              
+              // Восстанавливаем кнопку
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+              
+              // Закрываем модальное окно через небольшую задержку
+              setTimeout(() => {
+                closeProductModal();
+              }, 500);
+            } else {
+              showNotification(data.message || 'Ошибка при добавлении товара', 'error');
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            showNotification('Ошибка при добавлении товара', 'error');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          });
+        });
+      }
+    });
+    
+    // Функция для показа уведомлений
+    function showNotification(message, type) {
+      // Удаляем предыдущее уведомление, если есть
+      const existing = document.querySelector('.cart-notification');
+      if (existing) {
+        existing.remove();
+      }
+      
+      // Создаем новое уведомление
+      const notification = document.createElement('div');
+      notification.className = 'cart-notification';
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 16px 24px;
+        background: ${type === 'success' ? 'rgba(76, 175, 80, 0.95)' : 'rgba(244, 67, 54, 0.95)'};
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.3s ease;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Удаляем через 3 секунды
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+    
+    // Добавляем стили для анимации
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
 </body>
 </html>

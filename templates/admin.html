@@ -226,13 +226,61 @@
     .add-product-form button {
       margin-top: 24px;
     }
+    .edit-btn {
+      padding: 10px 20px;
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+      border: 1px solid rgba(33, 150, 243, 0.5);
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .edit-btn:hover {
+      background: rgba(33, 150, 243, 0.3);
+    }
+    .edit-product-form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 178, 0, 0.3);
+      background: var(--primary-dark);
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: 'Montserrat', sans-serif;
+      outline: none;
+      transition: border-color 0.2s ease;
+      resize: vertical;
+    }
+    .edit-product-form textarea:focus {
+      border-color: var(--accent);
+    }
+    .edit-product-form label {
+      display: block;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
   </style>
+  <script>
+    function toggleEditForm(id) {
+      const form = document.getElementById('edit-form-' + id);
+      if (form.style.display === 'none') {
+        form.style.display = 'block';
+      } else {
+        form.style.display = 'none';
+      }
+    }
+  </script>
 </head>
 <body>
   <div class="admin-container">
     <div class="admin-header">
       <h1>⚙️ Админ-панель</h1>
-      <a href="{{ url_for('home') }}">← Вернуться на главную</a>
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 10px;">
+        <a href="{{ url_for('home') }}">← Вернуться на главную</a>
+        <a href="{{ url_for('orders_list') }}" style="color: var(--accent);">📦 Управление заказами</a>
+      </div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -313,6 +361,25 @@
             <button type="submit" class="delete-btn" onclick="return confirm('Удалить изображение?')">Удалить</button>
           </form>
           {% endif %}
+          <button type="button" class="edit-btn" onclick="toggleEditForm('{{ category.key }}-{{ loop.index0 }}')">Редактировать</button>
+        </div>
+        
+        <!-- Форма редактирования товара -->
+        <div id="edit-form-{{ category.key }}-{{ loop.index0 }}" class="edit-product-form" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(245, 178, 0, 0.2);">
+          <form action="{{ url_for('update_product') }}" method="post">
+            <input type="hidden" name="category" value="{{ category.key }}">
+            <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+            <div class="form-field" style="margin-bottom: 15px;">
+              <label for="description-{{ category.key }}-{{ loop.index0 }}">Описание товара</label>
+              <textarea name="description" id="description-{{ category.key }}-{{ loop.index0 }}" rows="4" placeholder="Введите описание товара...">{{ item.get('description', '') }}</textarea>
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;">
+              <label for="specs-{{ category.key }}-{{ loop.index0 }}">Характеристики (каждая строка - отдельная характеристика)</label>
+              <textarea name="specs" id="specs-{{ category.key }}-{{ loop.index0 }}" rows="6" placeholder="Например:&#10;Батарея: до 30 часов&#10;Вес: 250г&#10;Цвет: Черный">{{ '\n'.join(item.get('specs', [])) }}</textarea>
+            </div>
+            <button type="submit" class="upload-btn">Сохранить изменения</button>
+            <button type="button" class="delete-btn" onclick="toggleEditForm('{{ category.key }}-{{ loop.index0 }}')" style="margin-left: 10px;">Отмена</button>
+          </form>
         </div>
       </div>
       {% endfor %}

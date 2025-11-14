@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои заказы — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .my-orders-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .my-orders-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .my-orders-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .order-card {
+      background: var(--bg-light);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(245, 178, 0, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .order-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 178, 0, 0.15);
+    }
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.2);
+    }
+    .order-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .order-status {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .order-status.Оформлен {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+    }
+    .order-status.В\ обработке {
+      background: rgba(255, 152, 0, 0.2);
+      color: #FF9800;
+    }
+    .order-status.Отправлен {
+      background: rgba(156, 39, 176, 0.2);
+      color: #9C27B0;
+    }
+    .order-status.Доставлен {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+    }
+    .order-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .info-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .info-value {
+      font-size: 1rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .order-items-preview {
+      margin-bottom: 20px;
+    }
+    .order-items-preview h3 {
+      font-size: 1.1rem;
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+    .order-item-preview {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+      font-size: 0.9rem;
+    }
+    .order-item-preview:last-child {
+      border-bottom: none;
+    }
+    .order-total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+    .order-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .view-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: var(--primary);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .view-btn:hover {
+      background: #ffc107;
+    }
+    .empty-orders {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-orders h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="my-orders-container">
+    <div class="my-orders-header">
+      <h1>📦 Мои заказы</h1>
+      <a href="{{ url_for('home') }}">← Вернуться на главную</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="margin-bottom: 20px;">
+          {% for category, message in messages %}
+            <div class="message {{ category }}" style="margin-bottom: 10px; padding: 12px; border-radius: 8px; background: {% if category == 'success' %}rgba(76, 175, 80, 0.2){% else %}rgba(244, 67, 54, 0.2){% endif %}; border: 1px solid {% if category == 'success' %}rgba(76, 175, 80, 0.5){% else %}rgba(244, 67, 54, 0.5){% endif %}; color: {% if category == 'success' %}#4caf50{% else %}#f44336{% endif %};">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if orders %}
+      {% for order_number, order in orders.items() %}
+      <div class="order-card">
+        <div class="order-card-header">
+          <div class="order-number">№ {{ order_number }}</div>
+          <div class="order-status {{ order['status'] }}">{{ order['status'] }}</div>
+        </div>
+        
+        <div class="order-info">
+          <div class="info-item">
+            <span class="info-label">Дата оформления</span>
+            <span class="info-value">{{ order['created_at'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Имя</span>
+            <span class="info-value">{{ order['customer']['name'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Телефон</span>
+            <span class="info-value">{{ order['customer']['phone'] }}</span>
+          </div>
+          {% if order['customer']['email'] %}
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ order['customer']['email'] }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="order-items-preview">
+          <h3>Товары ({{ order['items']|length }}):</h3>
+          {% for item in order['items'][:3] %}
+          <div class="order-item-preview">
+            <span>{{ item.name }} × {{ item.quantity }}</span>
+            <span style="color: var(--accent); font-weight: 600;">{{ "{:,}".format(item.total).replace(",", ".") }}₽</span>
+          </div>
+          {% endfor %}
+          {% if order['items']|length > 3 %}
+          <div class="order-item-preview" style="color: var(--text-muted);">
+            <span>... и еще {{ order['items']|length - 3 }} товар(ов)</span>
+          </div>
+          {% endif %}
+          <div class="order-total">
+            Итого: {{ "{:,}".format(order['total']).replace(",", ".") }}₽
+          </div>
+        </div>
+
+        <div class="order-actions">
+          <a href="{{ url_for('track_order', order_number=order_number) }}" class="view-btn" target="_blank">Просмотр заказа</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-orders">
+        <h2>У вас пока нет заказов</h2>
+        <p>Когда вы оформите заказ, он появится здесь</p>
+        <a href="{{ url_for('home') }}" class="view-btn" style="margin-top: 20px; display: inline-block;">Перейти в каталог</a>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
+

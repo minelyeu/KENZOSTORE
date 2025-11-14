@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Управление заказами — KENZO STORE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    .orders-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .orders-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .orders-header h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    .orders-header a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .orders-header a:hover {
+      color: var(--accent);
+    }
+    .order-card {
+      background: var(--bg-light);
+      border: 2px solid rgba(245, 178, 0, 0.2);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .order-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .order-status {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .order-status.Оформлен {
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+      border: 1px solid rgba(33, 150, 243, 0.5);
+    }
+    .order-status.В\ обработке {
+      background: rgba(255, 152, 0, 0.2);
+      color: #FF9800;
+      border: 1px solid rgba(255, 152, 0, 0.5);
+    }
+    .order-status.Отправлен {
+      background: rgba(156, 39, 176, 0.2);
+      color: #9C27B0;
+      border: 1px solid rgba(156, 39, 176, 0.5);
+    }
+    .order-status.Доставлен {
+      background: rgba(76, 175, 80, 0.2);
+      color: #4CAF50;
+      border: 1px solid rgba(76, 175, 80, 0.5);
+    }
+    .order-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .info-label {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .order-items-preview {
+      margin-bottom: 20px;
+    }
+    .order-items-preview h3 {
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .order-item-preview {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(245, 178, 0, 0.1);
+      font-size: 0.9rem;
+    }
+    .order-item-preview:last-child {
+      border-bottom: none;
+    }
+    .order-total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 15px;
+    }
+    .order-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .status-form {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .status-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 178, 0, 0.3);
+      background: var(--primary-dark);
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .status-btn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .status-btn:hover {
+      background: #ffc107;
+      transform: translateY(-2px);
+    }
+    .view-btn {
+      padding: 8px 16px;
+      background: rgba(33, 150, 243, 0.2);
+      color: #2196F3;
+      border: 1px solid rgba(33, 150, 243, 0.5);
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .view-btn:hover {
+      background: rgba(33, 150, 243, 0.3);
+    }
+    .empty-orders {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-orders h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="orders-container">
+    <div class="orders-header">
+      <h1>📦 Управление заказами</h1>
+      <a href="{{ url_for('admin') }}">← Вернуться в админ-панель</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="messages" style="margin-bottom: 30px;">
+          {% for category, message in messages %}
+            <div class="message {{ category }}" style="padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; font-weight: 600; background: {% if category == 'success' %}rgba(76, 175, 80, 0.2){% else %}rgba(244, 67, 54, 0.2){% endif %}; border: 1px solid {% if category == 'success' %}rgba(76, 175, 80, 0.5){% else %}rgba(244, 67, 54, 0.5){% endif %}; color: {% if category == 'success' %}#4caf50{% else %}#f44336{% endif %};">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if orders %}
+      {% for order_number, order in orders %}
+      <div class="order-card">
+        <div class="order-card-header">
+          <div class="order-number">№ {{ order_number }}</div>
+          <div class="order-status {{ order['status'] }}">{{ order['status'] }}</div>
+        </div>
+        
+        <div class="order-info">
+          <div class="info-item">
+            <span class="info-label">Дата оформления</span>
+            <span class="info-value">{{ order['created_at'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Клиент</span>
+            <span class="info-value">{{ order['customer']['name'] }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Телефон</span>
+            <span class="info-value">{{ order['customer']['phone'] }}</span>
+          </div>
+          {% if order['customer']['email'] %}
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ order['customer']['email'] }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="order-items-preview">
+          <h3>Товары ({{ order['items']|length }}):</h3>
+          {% for item in order['items'][:3] %}
+          <div class="order-item-preview">
+            <span>{{ item.name }} × {{ item.quantity }}</span>
+            <span style="color: var(--accent); font-weight: 600;">{{ "{:,}".format(item.total).replace(",", ".") }}₽</span>
+          </div>
+          {% endfor %}
+          {% if order['items']|length > 3 %}
+          <div class="order-item-preview" style="color: var(--text-muted);">
+            <span>... и еще {{ order['items']|length - 3 }} товар(ов)</span>
+          </div>
+          {% endif %}
+          <div class="order-total">
+            Итого: {{ "{:,}".format(order['total']).replace(",", ".") }}₽
+          </div>
+        </div>
+
+        <div class="order-actions">
+          <form method="POST" action="{{ url_for('update_order_status') }}" class="status-form">
+            <input type="hidden" name="order_number" value="{{ order_number }}">
+            <select name="status" class="status-select">
+              <option value="Оформлен" {% if order['status'] == 'Оформлен' %}selected{% endif %}>Оформлен</option>
+              <option value="В обработке" {% if order['status'] == 'В обработке' %}selected{% endif %}>В обработке</option>
+              <option value="Отправлен" {% if order['status'] == 'Отправлен' %}selected{% endif %}>Отправлен</option>
+              <option value="Доставлен" {% if order['status'] == 'Доставлен' %}selected{% endif %}>Доставлен</option>
+            </select>
+            <button type="submit" class="status-btn">Изменить статус</button>
+          </form>
+          <a href="{{ url_for('track_order', order_number=order_number) }}" class="view-btn" target="_blank">Просмотр</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-orders">
+        <h2>Заказов пока нет</h2>
+        <p>Когда появятся заказы, они будут отображаться здесь</p>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
+

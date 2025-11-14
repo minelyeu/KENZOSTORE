@@ -271,7 +271,7 @@
         <h2>Итого</h2>
         <div class="cart-total-price">{{ "{:,}".format(total).replace(",", ".") }}₽</div>
         <div class="cart-actions">
-          <a href="{{ url_for('home') }}#buy" class="cta" style="background: linear-gradient(135deg, var(--accent) 0%, #ffc107 100%);">Оформить заказ</a>
+          <a href="{{ url_for('checkout') }}" class="cta" style="background: linear-gradient(135deg, var(--accent) 0%, #ffc107 100%);">Оформить заказ</a>
           <a href="{{ url_for('home') }}" class="cta" style="background: rgba(255, 255, 255, 0.1); color: var(--text); border: 2px solid rgba(245, 178, 0, 0.3);">Продолжить покупки</a>
           <form method="POST" action="{{ url_for('clear_cart') }}">
             <button type="submit" class="remove-btn" onclick="return confirm('Очистить всю корзину?')">Очистить корзину</button>

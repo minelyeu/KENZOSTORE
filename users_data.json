@@ -10,9 +10,21 @@
     "id": "3c069f60-3c88-4583-a14d-dc1eebc110b9"
   },
   "admin": {
-    "email": "admin@gmail.com",
-    "password": "scrypt:32768:8:1$7T9wrUolrWKrD2vy$7e4e8ff199ec1d133163d846feae1e05ad9e4fd65f8c2411405128251143d4d21f14bab6b8c77dea9b851d4490ece4cfdb390b658dfa1c4c4b5ee363e73d2d30",
-    "id": "fa9d7d74-c8ac-45b0-814a-210009007b98",
+    "email": "admin@mail.ru",
+    "password": "scrypt:32768:8:1$MSeaGSUvBG6uwqLC$769cfe087fba0b8ce82ad89fef7852d83c3b22624e2aab85f0876f3f6cffbb92100b353a2db1a5b383bb3b4e06ca562ade406fad961f6f0f13de5cbf7c68072c",
+    "id": "834c3370-5d25-42ab-9fd6-04d6226ebeee",
     "is_admin": true
+  },
+  "321123": {
+    "email": "fsdf@mail.ru",
+    "password": "scrypt:32768:8:1$W8NWhqZdBDlvk1UF$0563ea7342b42919344a2b2b29ddab9de586128808b2548e009f4fb6dc58ff6ccb7f333b8b49b25382047a6a7425c1cbc64244c271e8f9ce42fb7b6d51e0eea0",
+    "id": "6f6683de-1183-44a4-8d48-6f481671c2f0",
+    "is_admin": false
+  },
+  "123": {
+    "email": "123@123.ru",
+    "password": "scrypt:32768:8:1$4wozEvCggK3ncKRo$2cab6fe8ae6758214dad462b04f03714e6afe2d2e46804eec5221718e5c8781a281697fc708a141102ad71c8457b4deed9e8088f006e2536b91e1f10895f70d5",
+    "id": "5021fd55-4312-4670-bb5b-0c5e1c7b2d89",
+    "is_admin": false
   }
 }
