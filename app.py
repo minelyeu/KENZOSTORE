@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import json
 import uuid
+import re
 from functools import wraps
 
 app = Flask(__name__)
@@ -11,6 +12,8 @@ app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
+MANUFACTURER_REGEX = re.compile(r"^[\w\s\-\&\+\.\/]+$", re.UNICODE)
 
 # Создаем папку для загрузок, если её нет
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -24,21 +27,75 @@ ORDERS_FILE = 'orders_data.json'
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def normalize_phone(phone):
+    if not phone:
+        return ""
+    return re.sub(r"\D", "", phone)
+
+def is_valid_phone(phone):
+    digits = normalize_phone(phone)
+    return 10 <= len(digits) <= 15
+
+def is_valid_email(email):
+    if not email:
+        return False
+    return EMAIL_REGEX.match(email) is not None
+
+def format_price(price_raw):
+    digits_only = ''.join(ch for ch in price_raw if ch.isdigit())
+    if not digits_only:
+        return None
+    if len(digits_only) > 3:
+        return f"{digits_only[:-3]}.{digits_only[-3:]}"
+    return digits_only
+
+def sanitize_manufacturer(value, fallback_name=""):
+    candidate = (value or "").strip()
+    if not candidate and fallback_name:
+        candidate = derive_manufacturer(fallback_name)
+    if not candidate:
+        candidate = "Не указан"
+    if len(candidate) > 60:
+        candidate = candidate[:60]
+    if MANUFACTURER_REGEX.match(candidate) is None:
+        return None
+    return candidate
+
+def derive_manufacturer(product_name):
+    """Определяет производителя на основе названия товара"""
+    if not product_name:
+        return "Не указан"
+    return product_name.split()[0]
+
 def load_products():
     """Загружает данные о товарах из JSON файла"""
     if os.path.exists(PRODUCTS_FILE):
         with open(PRODUCTS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+        changed = False
+        for category in data.values():
+            for item in category.get('items', []):
+                sanitized = sanitize_manufacturer(item.get('manufacturer'), item.get('name', ''))
+                if sanitized:
+                    if item.get('manufacturer') != sanitized:
+                        item['manufacturer'] = sanitized
+                        changed = True
+                else:
+                    item['manufacturer'] = derive_manufacturer(item.get('name', ''))
+                    changed = True
+        if changed:
+            save_products(data)
+        return data
     return {
         "headphones": {
             "emoji": "🎧",
             "name": "НАУШНИКИ",
             "name_en": "HEADPHONES",
             "items": [
-                {"name": "AirPods 4", "price": "3.290", "image": ""},
-                {"name": "AirPods Pro 2", "price": "3.490", "image": ""},
-                {"name": "AirPods Max", "price": "11.490", "image": ""},
-                {"name": "Marshall Major V", "price": "5.490", "image": ""}
+                {"name": "AirPods 4", "price": "3.290", "image": "", "manufacturer": "Apple"},
+                {"name": "AirPods Pro 2", "price": "3.490", "image": "", "manufacturer": "Apple"},
+                {"name": "AirPods Max", "price": "11.490", "image": "", "manufacturer": "Apple"},
+                {"name": "Marshall Major V", "price": "5.490", "image": "", "manufacturer": "Marshall"}
             ]
         },
         "watches": {
@@ -46,9 +103,9 @@ def load_products():
             "name": "ЧАСЫ",
             "name_en": "WATCHES",
             "items": [
-                {"name": "Apple Watch Series 10 I Black Titanium", "price": "3.990", "image": ""},
-                {"name": "Apple Watch Series 10 I Natural Titanium", "price": "3.990", "image": ""},
-                {"name": "Apple Watch Ultra 2", "price": "3.990", "image": ""}
+                {"name": "Apple Watch Series 10 I Black Titanium", "price": "3.990", "image": "", "manufacturer": "Apple"},
+                {"name": "Apple Watch Series 10 I Natural Titanium", "price": "3.990", "image": "", "manufacturer": "Apple"},
+                {"name": "Apple Watch Ultra 2", "price": "3.990", "image": "", "manufacturer": "Apple"}
             ]
         },
         "charging": {
@@ -56,7 +113,7 @@ def load_products():
             "name": "ЗАРЯДНЫЕ УСТРОЙСТВА",
             "name_en": "CHARGING DEVICES",
             "items": [
-                {"name": "Комплект зарядки Apple 25W I USB-C, Lightning", "price": "790", "image": ""}
+                {"name": "Комплект зарядки Apple 25W I USB-C, Lightning", "price": "790", "image": "", "manufacturer": "Apple"}
             ]
         },
         "haircare": {
@@ -64,7 +121,7 @@ def load_products():
             "name": "УХОД ЗА ВОЛОСАМИ",
             "name_en": "HAIR CARE",
             "items": [
-                {"name": "Dyson Supersonic HD-08 1:1", "price": "3.490", "image": ""}
+                {"name": "Dyson Supersonic HD-08 1:1", "price": "3.490", "image": "", "manufacturer": "Dyson"}
             ]
         },
         "speakers": {
@@ -72,8 +129,8 @@ def load_products():
             "name": "КОЛОНКИ",
             "name_en": "SPEAKERS",
             "items": [
-                {"name": "JBL Flip 6", "price": "2.190", "image": ""},
-                {"name": "JBL Clip 5", "price": "2.190", "image": ""}
+                {"name": "JBL Flip 6", "price": "2.190", "image": "", "manufacturer": "JBL"},
+                {"name": "JBL Clip 5", "price": "2.190", "image": "", "manufacturer": "JBL"}
             ]
         }
     }
@@ -153,6 +210,31 @@ def save_user_cart(cart, cart_id=None):
     carts[cart_id] = cart
     save_carts(carts)
 
+def merge_carts(source_cart_id, target_cart_id):
+    """Объединяет корзину гостя с корзиной пользователя при авторизации"""
+    if not source_cart_id or not target_cart_id or source_cart_id == target_cart_id:
+        return
+
+    carts = load_carts()
+    source_cart = carts.get(source_cart_id, [])
+    if not source_cart:
+        return
+
+    target_cart = carts.get(target_cart_id, [])
+    target_map = {item['name']: item for item in target_cart}
+
+    for source_item in source_cart:
+        name = source_item.get('name')
+        quantity = max(1, int(source_item.get('quantity', 1)))
+        if name in target_map:
+            target_map[name]['quantity'] += quantity
+        else:
+            target_cart.append({'name': name, 'quantity': quantity})
+
+    carts[target_cart_id] = target_cart
+    carts[source_cart_id] = []
+    save_carts(carts)
+
 def login_required(f):
     """Декоратор для проверки авторизации"""
     @wraps(f)
@@ -184,12 +266,17 @@ def home():
     # Преобразуем словарь в список для удобной работы в шаблоне
     products_list = []
     for key, value in products.items():
+        processed_products = []
+        for product in value["items"]:
+            product_copy = product.copy()
+            product_copy["manufacturer"] = product_copy.get("manufacturer") or derive_manufacturer(product_copy.get("name", ""))
+            processed_products.append(product_copy)
         category = {
             "key": key,
             "emoji": value["emoji"],
             "name": value["name"],
             "name_en": value["name_en"],
-            "products": value["items"]
+            "products": processed_products
         }
         products_list.append(category)
     
@@ -221,6 +308,7 @@ def get_product(category_key, product_index):
         'image': product.get('image', ''),
         'description': product.get('description', ''),
         'specs': product.get('specs', []),
+        'manufacturer': product.get('manufacturer') or derive_manufacturer(product.get('name', '')),
         'category_name': category['name'],
         'category_name_en': category['name_en'],
         'category_emoji': category['emoji'],
@@ -237,12 +325,17 @@ def admin():
     products = load_products()
     products_list = []
     for key, value in products.items():
+        processed_products = []
+        for product in value["items"]:
+            product_copy = product.copy()
+            product_copy["manufacturer"] = product_copy.get("manufacturer") or derive_manufacturer(product_copy.get("name", ""))
+            processed_products.append(product_copy)
         category = {
             "key": key,
             "emoji": value["emoji"],
             "name": value["name"],
             "name_en": value["name_en"],
-            "products": value["items"]
+            "products": processed_products
         }
         products_list.append(category)
     return render_template("admin.html", products=products_list)
@@ -256,6 +349,7 @@ def add_product():
     category_key = request.form.get('category')
     product_name = request.form.get('name', '').strip()
     product_price = request.form.get('price', '').strip()
+    product_manufacturer = request.form.get('manufacturer', '').strip()
 
     if not category_key:
         flash('Выберите категорию для нового товара', 'error')
@@ -272,8 +366,8 @@ def add_product():
         return redirect(url_for('admin'))
 
     # Преобразуем цену в формат с разделением тысяч точкой (например, 3.490)
-    digits_only = ''.join(ch for ch in product_price if ch.isdigit())
-    if not digits_only:
+    formatted_price = format_price(product_price)
+    if not formatted_price:
         flash('Неверный формат цены', 'error')
         return redirect(url_for('admin'))
 
@@ -281,14 +375,15 @@ def add_product():
         flash('Товар с таким названием уже существует в этой категории', 'error')
         return redirect(url_for('admin'))
 
-    if len(digits_only) > 3:
-        formatted_price = f"{digits_only[:-3]}.{digits_only[-3:]}"
-    else:
-        formatted_price = digits_only
+    manufacturer_clean = sanitize_manufacturer(product_manufacturer, product_name)
+    if not manufacturer_clean:
+        flash('Некорректное значение производителя', 'error')
+        return redirect(url_for('admin'))
 
     new_product = {
         "name": product_name,
         "price": formatted_price,
+        "manufacturer": manufacturer_clean,
         "image": "",
         "description": "",
         "specs": []
@@ -381,6 +476,7 @@ def update_product():
     product_index = int(request.form.get('product_index'))
     description = request.form.get('description', '').strip()
     specs_text = request.form.get('specs', '').strip()
+    manufacturer_input = request.form.get('manufacturer', '').strip()
     
     products = load_products()
     if category_key not in products or product_index >= len(products[category_key]["items"]):
@@ -393,8 +489,18 @@ def update_product():
         specs = [spec.strip() for spec in specs_text.split('\n') if spec.strip()]
     
     # Обновляем данные товара
-    products[category_key]["items"][product_index]["description"] = description
-    products[category_key]["items"][product_index]["specs"] = specs
+    product_data = products[category_key]["items"][product_index]
+    product_data["description"] = description
+    product_data["specs"] = specs
+
+    if manufacturer_input:
+        sanitized = sanitize_manufacturer(manufacturer_input, product_data.get("name", ""))
+        if not sanitized:
+            flash('Некорректное значение производителя', 'error')
+            return redirect(url_for('admin'))
+        product_data["manufacturer"] = sanitized
+    elif not product_data.get("manufacturer"):
+        product_data["manufacturer"] = derive_manufacturer(product_data.get("name", ""))
     
     save_products(products)
     flash('Данные товара успешно обновлены', 'success')
@@ -405,6 +511,7 @@ def update_product():
 def register():
     """Регистрация нового пользователя"""
     if request.method == "POST":
+        session_cart_id = get_cart_id()
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
@@ -414,14 +521,23 @@ def register():
             flash('Все поля обязательны для заполнения', 'error')
             return render_template("register.html")
         
+        if not (3 <= len(username) <= 30) or not re.match(r"^[A-Za-z0-9_.-]+$", username):
+            flash('Имя пользователя может содержать 3-30 символов: буквы, цифры, точку, дефис или нижнее подчеркивание', 'error')
+            return render_template("register.html")
+        
+        if not is_valid_email(email):
+            flash('Введите корректный email', 'error')
+            return render_template("register.html")
+        
         if password != password_confirm:
             flash('Пароли не совпадают', 'error')
             return render_template("register.html")
         
-        if len(password) < 6:
-            flash('Пароль должен содержать минимум 6 символов', 'error')
+        if len(password) < 6 or password.isalpha() or password.isdigit():
+            flash('Пароль должен содержать минимум 6 символов и включать буквы и цифры', 'error')
             return render_template("register.html")
         
+        email = email.lower()
         users = load_users()
         if username in users:
             flash('Пользователь с таким именем уже существует', 'error')
@@ -444,6 +560,7 @@ def register():
         session['user_id'] = users[username]['id']
         session['username'] = username
         session['is_admin'] = users[username].get('is_admin', False)
+        merge_carts(session_cart_id, session['user_id'])
         
         flash('Регистрация успешна! Добро пожаловать!', 'success')
         return redirect(url_for('home'))
@@ -455,6 +572,7 @@ def register():
 def login():
     """Вход в систему"""
     if request.method == "POST":
+        session_cart_id = get_cart_id()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         
@@ -471,6 +589,7 @@ def login():
             session['user_id'] = users[username]['id']
             session['username'] = username
             session['is_admin'] = users[username].get('is_admin', username.lower() == 'admin')
+            merge_carts(session_cart_id, session['user_id'])
             flash(f'Добро пожаловать, {username}!', 'success')
             return redirect(url_for('home'))
         else:
@@ -641,6 +760,14 @@ def checkout():
         
         if not name or not phone:
             flash('Пожалуйста, заполните имя и телефон', 'error')
+            return redirect(url_for('checkout'))
+        
+        if not is_valid_phone(phone):
+            flash('Введите корректный номер телефона', 'error')
+            return redirect(url_for('checkout'))
+
+        if email and not is_valid_email(email):
+            flash('Введите корректный email', 'error')
             return redirect(url_for('checkout'))
         
         # Загружаем товары для расчета итоговой суммы

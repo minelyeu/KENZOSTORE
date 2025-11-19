@@ -313,6 +313,10 @@
           <label for="price">Цена (в ₽)</label>
           <input type="text" name="price" id="price" placeholder="Например, 3490" required>
         </div>
+        <div class="form-field">
+          <label for="manufacturer">Производитель</label>
+          <input type="text" name="manufacturer" id="manufacturer" placeholder="Например, Apple">
+        </div>
         <button type="submit" class="upload-btn">Добавить товар</button>
       </form>
     </div>
@@ -369,6 +373,10 @@
           <form action="{{ url_for('update_product') }}" method="post">
             <input type="hidden" name="category" value="{{ category.key }}">
             <input type="hidden" name="product_index" value="{{ loop.index0 }}">
+            <div class="form-field" style="margin-bottom: 15px;">
+              <label for="manufacturer-{{ category.key }}-{{ loop.index0 }}">Производитель</label>
+              <input type="text" name="manufacturer" id="manufacturer-{{ category.key }}-{{ loop.index0 }}" placeholder="Например, Apple" value="{{ item.get('manufacturer', '') }}">
+            </div>
             <div class="form-field" style="margin-bottom: 15px;">
               <label for="description-{{ category.key }}-{{ loop.index0 }}">Описание товара</label>
               <textarea name="description" id="description-{{ category.key }}-{{ loop.index0 }}" rows="4" placeholder="Введите описание товара...">{{ item.get('description', '') }}</textarea>

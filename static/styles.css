@@ -1015,6 +1015,7 @@ nav a:hover::before {
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 2px solid rgba(245, 178, 0, 0.2);
+  flex-wrap: wrap;
 }
 
 .category-emoji {
@@ -1033,6 +1034,42 @@ nav a:hover::before {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.category-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sort-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.category-sort-select {
+  background: var(--bg);
+  border: 1px solid rgba(245, 178, 0, 0.2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 36px 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 8L10 13L15 8' stroke='%23f5b200' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.category-sort-select:hover,
+.category-sort-select:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 
 .products-grid {
@@ -1147,6 +1184,11 @@ nav a:hover::before {
   color: var(--text);
   line-height: 1.4;
   flex-grow: 1;
+}
+
+.product-manufacturer {
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 .product-price-wrapper {

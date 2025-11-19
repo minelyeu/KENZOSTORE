@@ -21,10 +21,10 @@
     "id": "6f6683de-1183-44a4-8d48-6f481671c2f0",
     "is_admin": false
   },
-  "123": {
-    "email": "123@123.ru",
-    "password": "scrypt:32768:8:1$4wozEvCggK3ncKRo$2cab6fe8ae6758214dad462b04f03714e6afe2d2e46804eec5221718e5c8781a281697fc708a141102ad71c8457b4deed9e8088f006e2536b91e1f10895f70d5",
-    "id": "5021fd55-4312-4670-bb5b-0c5e1c7b2d89",
+  "fdsfsd": {
+    "email": "ffsdf@mail.ru",
+    "password": "scrypt:32768:8:1$ii8sZSzyMrcPJHpK$4acb2c06c2f69cc6955e56ec2cd51dedea7826616dd36d6688b1262c0b8742caea882182156a5e6fa3b88169d2e70ba4766544fa02f889251b9f60dce7d80bb6",
+    "id": "b74fd45c-101e-4a7b-98fb-e370fae81e4d",
     "is_admin": false
   }
 }

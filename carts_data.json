@@ -28,21 +28,11 @@
       "quantity": 2
     }
   ],
-  "session_bfdd7256-8c71-4721-8889-bcf97779dbd8": [
-    {
-      "name": "JBL Flip 6",
-      "quantity": 1
-    }
-  ],
-  "session_7ab5dda5-cf6d-49b0-bb70-bdb862269660": [
-    {
-      "name": "AirPods 4",
-      "quantity": 1
-    },
-    {
-      "name": "AirPods Pro 2",
-      "quantity": 1
-    }
-  ],
-  "5021fd55-4312-4670-bb5b-0c5e1c7b2d89": []
+  "session_332254d4-5fde-4ffc-b391-9487a1f24516": [],
+  "session_1396064c-a1dc-403d-b78c-9dde06050980": [],
+  "session_25c5acd1-f27e-43c4-92fc-2a41d5587e46": [],
+  "b74fd45c-101e-4a7b-98fb-e370fae81e4d": [],
+  "session_9de2227d-2803-42bf-9fce-12dd944d8712": [],
+  "session_5abf2870-7169-4b05-95f2-5a5ccfb1a4ed": [],
+  "session_952bf863-2c84-4ecf-b43b-86eb5d7d9fa6": []
 }

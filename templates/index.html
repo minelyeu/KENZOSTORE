@@ -159,10 +159,20 @@
             <h3 class="category-name">{{ category.name }}</h3>
             <span class="category-name-en">{{ category.name_en }}</span>
           </div>
+          <div class="category-controls">
+            <label class="sort-label" for="sort-{{ category.key }}">Сортировка:</label>
+            <select id="sort-{{ category.key }}" class="category-sort-select" data-category-key="{{ category.key }}">
+              <option value="default">По умолчанию</option>
+              <option value="price-asc">Цена ↑</option>
+              <option value="price-desc">Цена ↓</option>
+              <option value="manufacturer-asc">Производитель A→Я</option>
+              <option value="manufacturer-desc">Производитель Я→A</option>
+            </select>
+          </div>
         </div>
-        <div class="products-grid">
+        <div class="products-grid" data-category="{{ category.key }}">
           {% for item in category.products %}
-          <div class="product-item" data-category="{{ category.key }}" data-index="{{ loop.index0 }}" style="cursor: pointer;">
+          <div class="product-item" data-category="{{ category.key }}" data-index="{{ loop.index0 }}" data-original-order="{{ loop.index0 }}" data-price="{{ item.price|replace('.', '')|replace(' ', '') }}" data-manufacturer="{{ item.manufacturer }}" style="cursor: pointer;">
             {% if item.image %}
             <div class="product-image-wrapper">
               <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" class="product-image">
@@ -174,6 +184,7 @@
             </div>
             {% endif %}
             <div class="product-name">{{ item.name }}</div>
+            <div class="product-manufacturer">Производитель: {{ item.manufacturer }}</div>
             <div class="product-price-wrapper">
               <span class="product-price">{{ item.price }}₽</span>
             </div>
@@ -292,6 +303,10 @@
           <h2 id="modalProductName" class="product-modal-name"></h2>
           <div class="product-modal-price-wrapper">
             <span id="modalProductPrice" class="product-modal-price"></span>
+          </div>
+          <div class="product-modal-meta">
+            <span class="product-modal-meta-label">Производитель:</span>
+            <span id="modalProductManufacturer" class="product-modal-meta-value"></span>
           </div>
           <div id="modalProductDescription" class="product-modal-description" style="display: none;">
             <h3 class="product-modal-section-title">Описание</h3>
@@ -455,6 +470,21 @@
       font-size: 2.5rem;
       font-weight: 700;
     }
+    .product-modal-meta {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .product-modal-meta-label {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .product-modal-meta-value {
+      color: var(--text-muted);
+    }
     .product-modal-btn {
       width: 100%;
       padding: 16px;
@@ -538,6 +568,8 @@
           }
         });
       });
+
+      initCategorySorting();
     });
     
     // Функция открытия модального окна
@@ -557,6 +589,7 @@
           document.getElementById('modalProductCategoryName').textContent = data.category_name;
           document.getElementById('modalProductCategoryKey').value = data.category_key;
           document.getElementById('modalProductIndex').value = data.product_index;
+          document.getElementById('modalProductManufacturer').textContent = data.manufacturer || 'Не указан';
           
           // Обработка изображения
           const image = document.getElementById('modalProductImage');
@@ -612,6 +645,53 @@
     function closeProductModal() {
       document.getElementById('productModal').style.display = 'none';
       document.body.style.overflow = '';
+    }
+
+    // Инициализация сортировки
+    function initCategorySorting() {
+      const selects = document.querySelectorAll('.category-sort-select');
+      selects.forEach(select => {
+        select.addEventListener('change', function() {
+          sortCategoryProducts(this.dataset.categoryKey, this.value);
+        });
+      });
+    }
+
+    function sortCategoryProducts(categoryKey, sortType) {
+      const grid = document.querySelector(`.products-grid[data-category="${categoryKey}"]`);
+      if (!grid) return;
+
+      const cards = Array.from(grid.querySelectorAll('.product-item'));
+      const getPrice = (card) => Number(card.dataset.price || '0');
+      const getManufacturer = (card) => (card.dataset.manufacturer || '').toLowerCase();
+      const getOriginalOrder = (card) => Number(card.dataset.originalOrder || '0');
+
+      let sortedCards = cards.slice();
+
+      switch (sortType) {
+        case 'price-asc':
+          sortedCards.sort((a, b) => getPrice(a) - getPrice(b));
+          break;
+        case 'price-desc':
+          sortedCards.sort((a, b) => getPrice(b) - getPrice(a));
+          break;
+        case 'manufacturer-asc':
+          sortedCards.sort((a, b) => getManufacturer(a).localeCompare(getManufacturer(b), 'ru'));
+          break;
+        case 'manufacturer-desc':
+          sortedCards.sort((a, b) => getManufacturer(b).localeCompare(getManufacturer(a), 'ru'));
+          break;
+        default:
+          sortedCards.sort((a, b) => getOriginalOrder(a) - getOriginalOrder(b));
+          break;
+      }
+
+      // Для возврата к исходному порядку
+      if (sortType === 'default') {
+        sortedCards.sort((a, b) => getOriginalOrder(a) - getOriginalOrder(b));
+      }
+
+      sortedCards.forEach(card => grid.appendChild(card));
     }
     
     // Закрытие по Escape
