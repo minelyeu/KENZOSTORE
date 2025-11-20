@@ -74,6 +74,11 @@
       color: #4CAF50;
       border: 1px solid rgba(76, 175, 80, 0.5);
     }
+    .order-status.Отменен {
+      background: rgba(244, 67, 54, 0.2);
+      color: #F44336;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+    }
     .order-info {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -249,6 +254,7 @@
               <option value="В обработке" {% if order['status'] == 'В обработке' %}selected{% endif %}>В обработке</option>
               <option value="Отправлен" {% if order['status'] == 'Отправлен' %}selected{% endif %}>Отправлен</option>
               <option value="Доставлен" {% if order['status'] == 'Доставлен' %}selected{% endif %}>Доставлен</option>
+              <option value="Отменен" {% if order['status'] == 'Отменен' %}selected{% endif %}>Отменен</option>
             </select>
             <button type="submit" class="status-btn">Изменить статус</button>
           </form>

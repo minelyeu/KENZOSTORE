@@ -71,6 +71,28 @@
       background: rgba(76, 175, 80, 0.2);
       color: #4CAF50;
     }
+    .order-status.Отменен {
+      background: rgba(244, 67, 54, 0.2);
+      color: #F44336;
+    }
+    .cancel-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #F44336;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+    }
+    .cancel-btn:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
     .order-info {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -213,6 +235,12 @@
 
         <div class="order-actions">
           <a href="{{ url_for('track_order', order_number=order_number) }}" class="view-btn" target="_blank">Просмотр заказа</a>
+          {% if cancellable_orders.get(order_number) %}
+          <form method="POST" action="{{ url_for('cancel_order') }}" style="display: inline-block;" onsubmit="return confirm('Вы уверены, что хотите отменить этот заказ?');">
+            <input type="hidden" name="order_number" value="{{ order_number }}">
+            <button type="submit" class="cancel-btn">Отменить заказ</button>
+          </form>
+          {% endif %}
         </div>
       </div>
       {% endfor %}

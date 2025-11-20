@@ -866,7 +866,12 @@ def my_orders():
     # Сортируем по дате (новые первые)
     sorted_orders = dict(sorted(user_orders.items(), key=lambda x: x[1]['created_at'], reverse=True))
     
-    return render_template("my_orders.html", orders=sorted_orders)
+    # Определяем, какие заказы можно отменить
+    cancellable_orders = {}
+    for order_number, order in sorted_orders.items():
+        cancellable_orders[order_number] = (order['status'] != 'Доставлен')
+    
+    return render_template("my_orders.html", orders=sorted_orders, cancellable_orders=cancellable_orders)
 
 
 @app.route("/track/<order_number>")
@@ -882,9 +887,20 @@ def track_order(order_number):
     
     # Определяем прогресс заказа
     status_order_list = ['Оформлен', 'В обработке', 'Отправлен', 'Доставлен']
-    current_status_index = status_order_list.index(order['status']) if order['status'] in status_order_list else 0
+    # Для отмененных заказов показываем специальный статус
+    if order['status'] == 'Отменен':
+        current_status_index = -1
+    else:
+        current_status_index = status_order_list.index(order['status']) if order['status'] in status_order_list else 0
     
-    return render_template("track_order.html", order=order, status_order=status_order_list, current_status_index=current_status_index)
+    # Проверяем, может ли пользователь отменить заказ
+    can_cancel = False
+    if 'user_id' in session:
+        can_cancel = (order.get('user_id') == session.get('user_id') and 
+                     order['status'] != 'Доставлен')
+    
+    return render_template("track_order.html", order=order, status_order=status_order_list, 
+                         current_status_index=current_status_index, can_cancel=can_cancel)
 
 
 @app.route("/orders")
@@ -916,6 +932,42 @@ def update_order_status():
     
     flash(f'Статус заказа {order_number} обновлен на "{new_status}"', 'success')
     return redirect(url_for('orders_list'))
+
+
+@app.route("/cancel_order", methods=["POST"])
+@login_required
+def cancel_order():
+    """Отмена заказа пользователем - удаление заказа"""
+    order_number = request.form.get('order_number')
+    user_id = session.get('user_id')
+    
+    if not order_number:
+        flash('Номер заказа не указан', 'error')
+        return redirect(url_for('my_orders'))
+    
+    orders = load_orders()
+    if order_number not in orders:
+        flash('Заказ не найден', 'error')
+        return redirect(url_for('my_orders'))
+    
+    order = orders[order_number]
+    
+    # Проверяем, что заказ принадлежит текущему пользователю
+    if order.get('user_id') != user_id:
+        flash('У вас нет прав для отмены этого заказа', 'error')
+        return redirect(url_for('my_orders'))
+    
+    # Проверяем, что заказ можно отменить (не доставлен)
+    if order['status'] == 'Доставлен':
+        flash('Нельзя отменить доставленный заказ', 'error')
+        return redirect(url_for('my_orders'))
+    
+    # Удаляем заказ
+    del orders[order_number]
+    save_orders(orders)
+    
+    flash(f'Заказ {order_number} успешно отменен и удален', 'success')
+    return redirect(url_for('my_orders'))
 
 
 if __name__ == "__main__":

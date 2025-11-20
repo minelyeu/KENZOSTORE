@@ -188,6 +188,32 @@
       font-size: 2rem;
       font-weight: 700;
     }
+    .order-actions {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid rgba(245, 178, 0, 0.2);
+    }
+    .cancel-btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: rgba(244, 67, 54, 0.2);
+      color: #F44336;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+      border: 1px solid rgba(244, 67, 54, 0.5);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    .cancel-btn:hover {
+      background: rgba(244, 67, 54, 0.3);
+    }
+    .order-status.Отменен {
+      color: #F44336;
+    }
   </style>
 </head>
 <body>
@@ -216,7 +242,7 @@
       </div>
       <div class="order-detail">
         <span class="order-detail-label">Статус:</span>
-        <span class="order-detail-value" style="color: var(--accent);">{{ order['status'] }}</span>
+        <span class="order-detail-value {% if order['status'] == 'Отменен' %}order-status.Отменен{% endif %}" style="{% if order['status'] == 'Отменен' %}color: #F44336;{% else %}color: var(--accent);{% endif %}">{{ order['status'] }}</span>
       </div>
       <div class="order-detail">
         <span class="order-detail-label">Имя:</span>
@@ -242,6 +268,15 @@
 
     <div class="status-timeline">
       <h2>Статус заказа</h2>
+      {% if order['status'] == 'Отменен' %}
+      <div class="timeline-item">
+        <div class="timeline-icon" style="background: rgba(244, 67, 54, 0.2); color: #F44336; border: 2px solid #F44336;">✕</div>
+        <div class="timeline-content">
+          <div class="timeline-status" style="color: #F44336;">Отменен</div>
+          <div class="timeline-description">Заказ был отменен</div>
+        </div>
+      </div>
+      {% else %}
       {% for status in status_order %}
       <div class="timeline-item">
         {% set status_index = loop.index0 %}
@@ -266,6 +301,7 @@
         {% endif %}
       </div>
       {% endfor %}
+      {% endif %}
     </div>
 
     <div class="order-items">
@@ -284,6 +320,15 @@
         <span class="order-total-price">{{ "{:,}".format(order['total']).replace(",", ".") }}₽</span>
       </div>
     </div>
+
+    {% if can_cancel %}
+    <div class="order-actions">
+      <form method="POST" action="{{ url_for('cancel_order') }}" onsubmit="return confirm('Вы уверены, что хотите отменить этот заказ?');">
+        <input type="hidden" name="order_number" value="{{ order['order_number'] }}">
+        <button type="submit" class="cancel-btn">Отменить заказ</button>
+      </form>
+    </div>
+    {% endif %}
   </div>
 </body>
 </html>
